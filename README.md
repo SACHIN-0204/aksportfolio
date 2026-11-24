@@ -14,6 +14,7 @@ cd server
 cp .env.example .env
 npm install
 npm run seed:admin
+npm run seed:products   # optional sample products
 npm run dev
 ```
 Set `MONGO_URI`, `JWT_SECRET`, `ADMIN_EMAIL`, and `ADMIN_PASSWORD` in `server/.env`.
@@ -27,6 +28,7 @@ cp .env.example .env
 npm run dev
 ```
 Open the Vite URL shown in the terminal. Backend runs on port 5000.
+Edit `client/.env` to set your real phone, WhatsApp number, address and store hours (shown on Contact page and footer).
 
 ## Admin
 Visit `/admin/login` and sign in using the credentials configured in `server/.env`.
@@ -35,16 +37,26 @@ The seed command creates the admin if it does not already exist.
 ## API
 - `GET /api/health`
 - `GET /api/products`
+- `GET /api/products/categories`
 - `GET /api/products/:id`
+- `GET /api/products/admin/all` (admin)
 - `POST /api/auth/login`
 - `GET /api/auth/me` (admin)
 - `POST /api/products` (admin)
 - `PUT /api/products/:id` (admin)
 - `DELETE /api/products/:id` (admin)
 - `GET /api/offers`
+- `GET /api/offers/admin/all` (admin)
 - `POST /api/offers` (admin)
+- `PUT /api/offers/:id` (admin)
 - `DELETE /api/offers/:id` (admin)
 - `POST /api/enquiries`
+- `GET /api/enquiries`, `GET /api/enquiries/stats` (admin)
+- `PATCH /api/enquiries/:id/status`, `DELETE /api/enquiries/:id` (admin)
+
+## Deployment
+- **Frontend** (Vercel/Netlify): root `client`, build `npm run build`, output `dist`. SPA rewrites are included (`vercel.json`, `public/_redirects`). Set `VITE_API_URL` to `https://your-api/api`.
+- **Backend** (Render/Railway): root `server`, start `npm start`. Set all variables from `server/.env.example`; `CLIENT_URL` must be your frontend URL.
 
 ## Production checklist
 - Use a strong unique JWT secret and admin password.

@@ -1,8 +1,12 @@
 import { Router } from "express";
-import { createOffer, deleteOffer, listOffers } from "../controllers/offerController.js";
+import { createOffer, deleteOffer, listAllOffers, listOffers, updateOffer } from "../controllers/offerController.js";
 import { requireAdmin } from "../middleware/authMiddleware.js";
+import { asyncHandler as h } from "../middleware/asyncHandler.js";
+import { validateId } from "../middleware/validateId.js";
 const router = Router();
-router.get("/", listOffers);
-router.post("/", requireAdmin, createOffer);
-router.delete("/:id", requireAdmin, deleteOffer);
+router.get("/", h(listOffers));
+router.get("/admin/all", requireAdmin, h(listAllOffers));
+router.post("/", requireAdmin, h(createOffer));
+router.put("/:id", requireAdmin, validateId, h(updateOffer));
+router.delete("/:id", requireAdmin, validateId, h(deleteOffer));
 export default router;

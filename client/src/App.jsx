@@ -1,4 +1,4 @@
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -9,6 +9,7 @@ import Offers from "./pages/Offers";
 import Contact from "./pages/Contact";
 import AdminLogin from "./admin/AdminLogin";
 import Dashboard from "./admin/Dashboard";
+import NotFound from "./pages/NotFound";
 
 function PublicLayout({ children }) { return <><Navbar/>{children}<Footer/></>; }
 export default function App() {
@@ -20,6 +21,6 @@ export default function App() {
     <Route path="/contact" element={<PublicLayout><Contact/></PublicLayout>}/>
     <Route path="/admin/login" element={<AdminLogin/>}/>
     <Route path="/admin" element={<ProtectedRoute><Dashboard/></ProtectedRoute>}/>
-    <Route path="*" element={<Navigate to="/" replace/>}/>
+    <Route path="*" element={<PublicLayout><NotFound/></PublicLayout>}/>
   </Routes>;
 }

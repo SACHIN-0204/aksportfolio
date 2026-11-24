@@ -3,8 +3,8 @@ import jwt from "jsonwebtoken";
 import Admin from "../models/Admin.js";
 
 export async function login(req, res) {
-  const email = String(req.body.email || "").toLowerCase().trim();
-  const password = String(req.body.password || "");
+  const email = String(req.body?.email || "").toLowerCase().trim();
+  const password = String(req.body?.password || "");
   if (!email || !password) return res.status(400).json({ message: "Email and password are required" });
 
   const admin = await Admin.findOne({ email }).select("+password");

@@ -88,3 +88,14 @@ export async function updateEnquiryStatus(req, res) {
     res.status(500).json({ message: "Could not update enquiry status" });
   }
 }
+
+export async function deleteEnquiry(req, res) {
+  try {
+    const enquiry = await Enquiry.findByIdAndDelete(req.params.id);
+    if (!enquiry) return res.status(404).json({ message: "Enquiry not found" });
+    res.json({ message: "Enquiry deleted" });
+  } catch (error) {
+    console.error("Delete enquiry error:", error);
+    res.status(500).json({ message: "Could not delete enquiry" });
+  }
+}
