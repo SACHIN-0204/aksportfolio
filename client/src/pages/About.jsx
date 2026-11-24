@@ -1,0 +1,3 @@
+export default function About() {
+  return <main className="page-section container"><span className="eyebrow">OUR STORY</span><h1 className="page-title">Rooted in community.<br/><em>Here for every day.</em></h1><div className="prose"><p>Abhishek Kirana Store is built around a simple idea: everyday shopping should feel convenient, dependable and welcoming.</p><p>From kitchen staples to household essentials, our goal is to help families find the things they need with friendly neighbourhood service.</p><h2>Our promise</h2><p>Thoughtful service, practical choices and a customer-first approach — every day.</p></div></main>;
+}
