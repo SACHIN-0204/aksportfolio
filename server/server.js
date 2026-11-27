@@ -1,4 +1,7 @@
-import "dotenv/config";
+import path from "node:path";
+import fs from "node:fs";
+import { fileURLToPath } from "node:url";
+import { config } from "dotenv";
 import express from "express";
 import cors from "cors";
 import helmet from "helmet";
@@ -10,14 +13,32 @@ import offerRoutes from "./routes/offerRoutes.js";
 import enquiryRoutes from "./routes/enquiryRoutes.js";
 import { notFound, errorHandler } from "./middleware/errorHandler.js";
 
+const envPaths = [
+  path.resolve(process.cwd(), ".env"),
+  fileURLToPath(new URL("./.env", import.meta.url))
+].filter(envPath => fs.existsSync(envPath));
+config({ path: envPaths });
+
 if (!process.env.JWT_SECRET || process.env.JWT_SECRET.length < 16) {
-  console.error("JWT_SECRET is missing or too short. Set a long random value in server/.env");
+  console.error("JWT_SECRET is missing or too short. Set a long random value in .env");
   process.exit(1);
 }
 
 const app = express();
 app.set("trust proxy", 1); // correct client IPs behind Render/Railway/Nginx for rate limiting
-app.use(helmet());
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+      fontSrc: ["'self'", "https://fonts.gstatic.com", "data:"],
+      imgSrc: ["'self'", "data:", "https:"], // admin can paste external image URLs
+      connectSrc: ["'self'"]
+    }
+  }
+}));
+// CORS is only needed when the frontend runs on another origin (e.g. Vite dev server)
 const origins = (process.env.CLIENT_URL || "http://localhost:5173").split(",").map(s => s.trim());
 app.use(cors({ origin: origins }));
 app.use(express.json({ limit: "100kb" }));
@@ -32,9 +53,19 @@ app.use("/api/auth", authRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/offers", offerRoutes);
 app.use("/api/enquiries", enquiryRoutes);
-app.use(notFound);
+app.use("/api", notFound);
+
+// Serve the built React app from the same server (run `npm run build` first)
+const dist = path.join(path.dirname(fileURLToPath(import.meta.url)), "../client/dist");
+if (fs.existsSync(dist)) {
+  app.use(express.static(dist, { maxAge: "1h", index: false }));
+  app.get("*", (_req, res) => res.sendFile(path.join(dist, "index.html")));
+} else {
+  app.use(notFound);
+  console.warn("client/dist not found — run `npm run build` to serve the frontend, or use `npm run dev`.");
+}
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
-connectDB().then(() => app.listen(PORT, () => console.log(`API listening on ${PORT}`)))
+connectDB().then(() => app.listen(PORT, () => console.log(`Server listening on ${PORT}`)))
   .catch(error => { console.error("Startup failed:", error.message); process.exit(1); });

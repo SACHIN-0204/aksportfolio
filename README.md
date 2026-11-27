@@ -6,32 +6,33 @@ Premium MERN business portfolio with public product showcase and protected admin
 - Node.js 20+
 - MongoDB Atlas or local MongoDB
 
-## Setup
-
-### 1. Backend
+## Setup (single project)
+The API loads environment variables from the project-root `.env` first, then `server/.env` for any values not already set.
 ```bash
-cd server
-cp .env.example .env
+cp .env.example .env     # fill in MONGO_URI, JWT_SECRET, admin credentials, store phone/address
 npm install
 npm run seed:admin
-npm run seed:products   # optional sample products
-npm run dev
+npm run seed:products    # optional sample products
+npm run dev              # API on :5000 + site on http://localhost:5173
 ```
-Set `MONGO_URI`, `JWT_SECRET`, `ADMIN_EMAIL`, and `ADMIN_PASSWORD` in `server/.env`.
 
-### 2. Frontend
-In another terminal:
+## Production (one server, one deploy)
 ```bash
-cd client
 npm install
-cp .env.example .env
-npm run dev
+npm run build            # builds the React app into client/dist
+npm start                # Express serves the API (/api) AND the website on PORT
 ```
-Open the Vite URL shown in the terminal. Backend runs on port 5000.
-Edit `client/.env` to set your real phone, WhatsApp number, address and store hours (shown on Contact page and footer).
+Deploy the whole repo to Render/Railway/a VPS with build command `npm install && npm run build` and start command `npm start`. No separate frontend host or `VITE_API_URL` is needed; the site and API share one origin.
+
+## Structure
+```
+package.json   .env   (one for everything)
+server/        Express + MongoDB API
+client/        React (Vite) frontend
+```
 
 ## Admin
-Visit `/admin/login` and sign in using the credentials configured in `server/.env`.
+Visit `/admin/login` and sign in using the credentials configured in `.env`.
 The seed command creates the admin if it does not already exist.
 
 ## API
@@ -54,13 +55,9 @@ The seed command creates the admin if it does not already exist.
 - `GET /api/enquiries`, `GET /api/enquiries/stats` (admin)
 - `PATCH /api/enquiries/:id/status`, `DELETE /api/enquiries/:id` (admin)
 
-## Deployment
-- **Frontend** (Vercel/Netlify): root `client`, build `npm run build`, output `dist`. SPA rewrites are included (`vercel.json`, `public/_redirects`). Set `VITE_API_URL` to `https://your-api/api`.
-- **Backend** (Render/Railway): root `server`, start `npm start`. Set all variables from `server/.env.example`; `CLIENT_URL` must be your frontend URL.
-
 ## Production checklist
 - Use a strong unique JWT secret and admin password.
-- Set exact production frontend URL in `CLIENT_URL`.
+- `CLIENT_URL` is only needed in development; in production everything is same-origin.
 - Use HTTPS for both frontend and API.
 - Configure MongoDB Atlas network access and least-privilege credentials.
 - Add Cloudinary or another managed image host before accepting public image uploads.
